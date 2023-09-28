@@ -105,7 +105,7 @@ void AddMenus(HWND hWnd) {
 
 void AddControls(HWND hWnd) {
     CreateWindow(L"static", L"Enter the title of a to-do:", WS_VISIBLE | WS_CHILD, 50, 50, 210, 38, hWnd, NULL, NULL, NULL);
-    hTitle = CreateWindow(L"edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE, 230, 50,250, 20, hWnd, NULL, NULL, NULL);
+    hTitle = CreateWindow(L"edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE, 230, 50, 250, 20, hWnd, NULL, NULL, NULL);
 
     CreateWindow(L"static", L"Enter the body of a to-do:", WS_VISIBLE | WS_CHILD, 50, 150, 210, 38, hWnd, NULL, NULL, NULL);
     hBody = CreateWindow(L"edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE, 230, 150, 250, 120, hWnd, NULL, NULL, NULL);
