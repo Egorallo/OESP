@@ -1,8 +1,7 @@
 #include <windows.h>
 #include <stdlib.h>
+#include <string>
 
-#define FILE_MENU_NEW 1
-#define FILE_MENU_OPEN 2
 #define FILE_MENU_EXIT 3
 #define GENERATE_BUTTON 4
 #define CLEAR_BUTTON 5
@@ -13,6 +12,7 @@ void AddMenus(HWND);
 void AddControls(HWND);
 void SaveDataToRegistry(const TCHAR* keyName, const TCHAR* valueName, const TCHAR* data);
 bool LoadDataFromRegistry(const TCHAR* keyName, const TCHAR* valueName, TCHAR* buffer, DWORD bufferSize);
+void WriteToEventLog(const std::wstring& message);
 
 HWND hTitle, hBody, hOut;
 HMENU hMenu;
@@ -33,7 +33,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdsho
         return -1;
     }
 
-    CreateWindowW(L"Lab1", L"Lab1", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 100, 100, 1400, 700, NULL, NULL, NULL, NULL);
+    CreateWindowW(L"Lab1", L"Lab1", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 100, 100, 900, 450, NULL, NULL, NULL, NULL);
 
     MSG msg = { 0 };
 
@@ -50,6 +50,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
     case WM_COMMAND:
         switch (wp) {
         case FILE_MENU_EXIT:
+            MessageBeep(MB_ICONINFORMATION);
             GetWindowText(hTitle, title, 31);
             GetWindowText(hBody, body, 200);
             GetWindowText(hOut, out, 250);
@@ -58,9 +59,6 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
             SaveDataToRegistry(L"Software\\AmazinNoteEditor22", L"NoteOut", out);
 
             DestroyWindow(hWnd);
-            break;
-        case FILE_MENU_NEW:
-            MessageBeep(MB_ICONINFORMATION);
             break;
         case GENERATE_BUTTON:
             
@@ -81,6 +79,9 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
                     wsprintf(out, L"Title: %s\r\n\r\nBody: %s", title, body);
 
                     SetWindowText(hOut, out);
+
+                    WriteToEventLog(L"New note was added");
+                    
                 }
             }
             break;
@@ -108,6 +109,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
         }
         break;
     case WM_DESTROY:
+        MessageBeep(MB_ICONINFORMATION);
         GetWindowText(hTitle, title, 31);
         GetWindowText(hBody, body, 200);
         GetWindowText(hOut, out, 250);
@@ -127,14 +129,10 @@ void AddMenus(HWND hWnd) {
     HMENU hSubMenu = CreateMenu();
 
     AppendMenu(hSubMenu, MF_STRING, NULL, L"Submenu item");
-
-    AppendMenu(hFileMenu, MF_STRING, FILE_MENU_NEW, L"New");
-    AppendMenu(hFileMenu, MF_POPUP, (UINT)hSubMenu, L"Open submenu");
-    AppendMenu(hFileMenu, MF_SEPARATOR, NULL, NULL);
     AppendMenu(hFileMenu, MF_STRING, FILE_MENU_EXIT, L"Exit");
 
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"File");
-    AppendMenu(hMenu, MF_STRING, NULL, L"Help");
+
 
     SetMenu(hWnd, hMenu);
 }
@@ -144,12 +142,12 @@ void AddControls(HWND hWnd) {
     hTitle = CreateWindow(L"edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE, 230, 50, 250, 20, hWnd, NULL, NULL, NULL);
 
     CreateWindow(L"static", L"Enter the body of a to-do:", WS_VISIBLE | WS_CHILD, 50, 150, 210, 38, hWnd, NULL, NULL, NULL);
-    hBody = CreateWindow(L"edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE, 230, 150, 250, 120, hWnd, NULL, NULL, NULL);
+    hBody = CreateWindow(L"edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE, 230, 150, 250, 58, hWnd, NULL, NULL, NULL);
 
-    CreateWindow(L"button", L"Add to-do", WS_VISIBLE | WS_CHILD | WS_BORDER, 50, 300, 98, 38, hWnd, (HMENU)GENERATE_BUTTON, NULL, NULL);
-    CreateWindow(L"button", L"Clear", WS_VISIBLE | WS_CHILD | WS_BORDER, 600, 500, 98, 38, hWnd, (HMENU)CLEAR_BUTTON, NULL, NULL);
+    CreateWindow(L"button", L"Add to-do", WS_VISIBLE | WS_CHILD | WS_BORDER, 230, 220, 98, 38, hWnd, (HMENU)GENERATE_BUTTON, NULL, NULL);
+    CreateWindow(L"button", L"Clear", WS_VISIBLE | WS_CHILD | WS_BORDER, 489, 312, 98, 38, hWnd, (HMENU)CLEAR_BUTTON, NULL, NULL);
 
-    hOut = CreateWindow(L"edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_READONLY, 600, 50, 700, 400, hWnd, NULL, NULL, NULL);
+    hOut = CreateWindow(L"edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_READONLY, 600, 50, 240,300 , hWnd, NULL, NULL, NULL);
 }
 
 void SaveDataToRegistry(const TCHAR* keyName, const TCHAR* valueName, const TCHAR* data) {
@@ -161,7 +159,6 @@ void SaveDataToRegistry(const TCHAR* keyName, const TCHAR* valueName, const TCHA
     }
 }
 
-// Функция для загрузки данных из реестра
 bool LoadDataFromRegistry(const TCHAR* keyName, const TCHAR* valueName, TCHAR* buffer, DWORD bufferSize) {
     HKEY hKey;
     LONG result = RegOpenKeyEx(HKEY_CURRENT_USER, keyName, 0, KEY_READ, &hKey);
@@ -176,4 +173,17 @@ bool LoadDataFromRegistry(const TCHAR* keyName, const TCHAR* valueName, TCHAR* b
     }
 
     return false;
+}
+
+void WriteToEventLog(const std::wstring& message) {
+    HANDLE hEventLog = RegisterEventSource(NULL, L"AmazinEditor222");
+
+    if (hEventLog) {
+        LPCWSTR messageStrings[1];
+        messageStrings[0] = message.c_str();
+
+        ReportEvent(hEventLog, EVENTLOG_INFORMATION_TYPE, 0, 0, NULL, 1, 0, messageStrings, NULL);
+
+        DeregisterEventSource(hEventLog);
+    }
 }
