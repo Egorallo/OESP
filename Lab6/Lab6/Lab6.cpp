@@ -173,8 +173,6 @@ DWORD WINAPI  ThreadFunction4(LPVOID aboba) {
     flag++;
     MultiThreadMessage(NULL);
 
-
-
     return result;
 
 
@@ -187,20 +185,6 @@ void CreateThreads() {
     threads[1] = CreateThread(NULL, 0, ThreadFunction2, NULL, 0, NULL);
     threads[2] = CreateThread(NULL, 0, ThreadFunction3, NULL, 0, NULL);
     threads[3] = CreateThread(NULL, 0, ThreadFunction4, NULL, 0, NULL);
-
-    /*if (threads[0] != NULL)
-        SetThreadPriority(threads[0], THREAD_PRIORITY_ABOVE_NORMAL);
-    if (threads[1] != NULL)
-        SetThreadPriority(threads[1], THREAD_PRIORITY_ABOVE_NORMAL);
-    if (threads[2] != NULL)
-        SetThreadPriority(threads[2], THREAD_PRIORITY_ABOVE_NORMAL);
-    if (threads[3] != NULL)
-        SetThreadPriority(threads[3], THREAD_PRIORITY_ABOVE_NORMAL);*/
-
-    //for (int i = 0; i < 4; i++) {
-    //    WaitForSingleObject(threads[i], INFINITE);
-    //    GetExitCodeThread(threads[i], (LPDWORD)(&results[i]));
-    //}
 
 
 }
@@ -236,12 +220,6 @@ DWORD WINAPI MultiThreadMessage(LPVOID lpParam) {
     if (flag != 4) {
         return 0;
     }
-    //WaitForSingleObject(Thread1Complete, INFINITE);
-    //WaitForSingleObject(Thread2Complete, INFINITE);
-    //WaitForSingleObject(Thread3Complete, INFINITE);
-    //WaitForSingleObject(Thread4Complete, INFINITE);
-
-    //double timeElapsed = Thread1TimeElapsed + Thread2TimeElapsed + Thread2TimeElapsed + Thread4TimeElapsed;
 
     unsigned long long totalSum = 0;
     for (int i = 0; i < 4; i++) {
