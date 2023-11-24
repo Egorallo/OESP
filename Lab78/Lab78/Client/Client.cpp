@@ -11,19 +11,15 @@ constexpr int DEFAULT_PORT = 12345;
 
 HWND hwndOutput, hwndInput;
 SOCKET clientSocket;
-LRESULT CALLBACK KeyboardHook(int nCode, WPARAM wParam, LPARAM lParam);
-HHOOK hHook = NULL;
 
+HHOOK hHook = NULL;
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK KeyboardHook(int nCode, WPARAM wParam, LPARAM lParam);
 
 void AddMessageToOutput(const std::string& message) {
     int len = GetWindowTextLengthA(hwndOutput);
     SendMessageA(hwndOutput, EM_SETSEL, len, len);
     SendMessageA(hwndOutput, EM_REPLACESEL, FALSE, reinterpret_cast<LPARAM>(message.c_str()));
-}
-
-void PostMessageToOutput(const std::string& message) {
-    PostMessage(hwndOutput, EM_REPLACESEL, FALSE, reinterpret_cast<LPARAM>(message.c_str()));
 }
 
 void SendMessageToServer() {
@@ -62,6 +58,7 @@ void ReceiveMessagesFromServer() {
 }
 
 int main() {
+    SetConsoleOutputCP(1251);
     // Инициализация Winsock
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
@@ -97,7 +94,6 @@ int main() {
         WSACleanup();
         return 1;
     }
-
 
     // Создание окна
     WNDCLASS wc = {};
@@ -194,12 +190,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             SendMessageToServer();
         }
         break;
-    case WM_KEYDOWN:
-        OutputDebugString(L"Enter key pressed\n");
-        if (wParam == VK_RETURN) {
-            SendMessageToServer();
-        }
-        break;
+
     }
 
     return DefWindowProc(hwnd, uMsg, wParam, lParam);

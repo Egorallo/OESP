@@ -40,7 +40,7 @@ void HandleClient(ClientInfo clientInfo) {
         }
 
         buffer[bytesReceived] = '\0'; // Добавим нулевой символ для корректного вывода строки
-
+            
         std::cout << "Received from client " << clientInfo.clientId << ": " << buffer << std::endl;
 
         for (const auto& client : clients) {
@@ -55,6 +55,7 @@ void HandleClient(ClientInfo clientInfo) {
 }
 
 int main() {
+    SetConsoleOutputCP(1251);
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         std::cerr << "Failed to initialize Winsock" << std::endl;
